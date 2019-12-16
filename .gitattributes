@@ -8,6 +8,7 @@ Dockerfile text eol=lf
 *.properties text eol=lf
 *.java text eol=lf
 *.groovy text eol=lf
+*.yml text eol=lf
 
 build.gradle eol=lf
 settings.gradle eol=lf
