@@ -7,12 +7,14 @@ import com.google.cloud.tools.jib.api.LayerConfiguration
 import com.google.cloud.tools.jib.api.LogEvent
 import com.google.cloud.tools.jib.api.TarImage
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
 
 class JibImageTar extends DefaultTask {
 
+    @Input
     QuarkusJibExtension quarkusJibExtension
 
     @TaskAction
