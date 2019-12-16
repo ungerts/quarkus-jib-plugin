@@ -1,0 +1,11 @@
+plugins {
+    id 'de.ungerts.quarkus-jib'
+}
+
+//quarkusJib {
+//    libsDirPath = '1'
+//    applicationLayersCachePath = '1'
+//    baseImageLayersCachePath = '1'
+//    baseImage = '1'
+//    imageName = '1'
+//}

@@ -1,0 +1,13 @@
+# unix  line endings at unix files
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+Dockerfile text eol=lf
+
+# ensure that line endings of *.groovy, *.java and *.properties are normalized
+*.properties text eol=lf
+*.java text eol=lf
+*.groovy text eol=lf
+
+build.gradle eol=lf
+settings.gradle eol=lf
