@@ -29,7 +29,7 @@ gradlePlugin {
     plugins {
         simplePlugin {
             id = 'de.ungerts.quarkus-jib'
-            implementationClass = 'de.ungerts.quarkus.QuarkusJibPlugin'
+            implementationClass = 'de.ungerts.quarkus.plugin.QuarkusJibPlugin'
         }
     }
 }

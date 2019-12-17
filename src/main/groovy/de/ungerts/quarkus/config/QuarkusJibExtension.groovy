@@ -1,4 +1,4 @@
-package de.ungerts.quarkus
+package de.ungerts.quarkus.config
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -13,6 +13,8 @@ class QuarkusJibExtension {
     private final Property<String> baseImage
     private final Property<String> imageName
 
+    private final Property<Integer> exposedPort
+
     QuarkusJibExtension(Project project) {
         def objectFactory = project.getObjects()
         libsDirPath = objectFactory.property(String.class)
@@ -20,11 +22,14 @@ class QuarkusJibExtension {
         baseImageLayersCachePath = objectFactory.property(String.class)
         baseImage = objectFactory.property(String.class)
         imageName = objectFactory.property(String.class)
+        exposedPort = objectFactory.property(Integer.class)
         libsDirPath.set("${project.buildDir}${File.separator}lib")
         applicationLayersCachePath.set("${project.buildDir}${File.separator}jib-app-cache")
         baseImageLayersCachePath.set("${project.buildDir}${File.separator}jib-base-cache")
         baseImage.set('gcr.io/distroless/java:11')
         imageName.set('runner-image')
+        exposedPort.set(8080)
+
     }
 
     @Input
@@ -76,5 +81,16 @@ class QuarkusJibExtension {
     void setImageName(String imageName) {
         this.imageName.set(imageName)
     }
+
+    @Input
+    @Optional
+    Integer getExposedPort() {
+        return this.exposedPort.get()
+    }
+
+    void setExposedPort(Integer exposedPort) {
+        this.exposedPort.set(exposedPort)
+    }
+
 
 }

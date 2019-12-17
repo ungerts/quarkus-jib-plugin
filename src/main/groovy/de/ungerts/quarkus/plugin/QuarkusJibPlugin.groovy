@@ -1,5 +1,8 @@
-package de.ungerts.quarkus
+package de.ungerts.quarkus.plugin
 
+import de.ungerts.quarkus.config.QuarkusJibExtension
+import de.ungerts.quarkus.tasks.JibDockerBuild
+import de.ungerts.quarkus.tasks.JibImageTar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

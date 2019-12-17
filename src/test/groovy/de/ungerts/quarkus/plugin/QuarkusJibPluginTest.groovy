@@ -1,4 +1,4 @@
-package de.ungerts.quarkus
+package de.ungerts.quarkus.plugin
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -32,9 +32,9 @@ class QuarkusJibPluginTest {
                 .withArguments('jibImageTar')
                 .build()
         println "Output: ${System.lineSeparator()}${result.output}"
-        assertTrue(result.task(':jibImageTar').outcome == SUCCESS)
+        org.junit.jupiter.api.Assertions.assertTrue(result.task(':jibImageTar').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS)
         Path imagePath = tempProjectRoot.resolve("build${File.separator}runner-image.tar")
-        assertTrue(Files.isRegularFile(imagePath))
+        org.junit.jupiter.api.Assertions.assertTrue(Files.isRegularFile(imagePath))
     }
 
 
