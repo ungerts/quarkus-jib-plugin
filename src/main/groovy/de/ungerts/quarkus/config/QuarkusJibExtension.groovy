@@ -12,8 +12,8 @@ class QuarkusJibExtension {
     private final Property<String> baseImageLayersCachePath
     private final Property<String> baseImage
     private final Property<String> imageName
-
     private final Property<Integer> exposedPort
+    private final Property<Boolean> offlineMode
 
     QuarkusJibExtension(Project project) {
         def objectFactory = project.getObjects()
@@ -23,12 +23,14 @@ class QuarkusJibExtension {
         baseImage = objectFactory.property(String.class)
         imageName = objectFactory.property(String.class)
         exposedPort = objectFactory.property(Integer.class)
+        offlineMode = objectFactory.property(Boolean.class)
         libsDirPath.set("${project.buildDir}${File.separator}lib")
         applicationLayersCachePath.set("${project.buildDir}${File.separator}jib-app-cache")
         baseImageLayersCachePath.set("${project.buildDir}${File.separator}jib-base-cache")
         baseImage.set('gcr.io/distroless/java:11')
         imageName.set('runner-image')
         exposedPort.set(8080)
+        offlineMode.set(false)
 
     }
 
@@ -90,6 +92,16 @@ class QuarkusJibExtension {
 
     void setExposedPort(Integer exposedPort) {
         this.exposedPort.set(exposedPort)
+    }
+
+    @Input
+    @Optional
+    Boolean getOfflineMode() {
+        return offlineMode.get()
+    }
+
+    void setOfflineMode(Boolean offlineMode) {
+        this.offlineMode.set(offlineMode)
     }
 
 

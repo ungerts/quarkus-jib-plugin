@@ -13,7 +13,7 @@ class JibImageTar extends DefaultTask {
 
     @TaskAction
     void buildImage() {
-        JibUtils.buildToDocker(quarkusJibExtension, project)
+        JibUtils.buildToImageTar(quarkusJibExtension, project)
     }
 
 }

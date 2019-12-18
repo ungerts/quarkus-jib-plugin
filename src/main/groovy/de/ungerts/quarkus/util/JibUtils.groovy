@@ -21,6 +21,7 @@ class JibUtils {
                 .addEventHandler(LogEvent.class, { event ->
                     println event.getMessage()
                 })
+                .setOfflineMode(quarkusJibExtension.offlineMode)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         buildImage(project, quarkusJibExtension, containerizer)
@@ -33,6 +34,7 @@ class JibUtils {
                 .addEventHandler(LogEvent.class, { event ->
                     println event.getMessage()
                 })
+                .setOfflineMode(quarkusJibExtension.offlineMode)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         buildImage(project, quarkusJibExtension, containerizer)

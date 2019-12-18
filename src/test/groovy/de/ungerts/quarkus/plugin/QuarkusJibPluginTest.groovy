@@ -1,5 +1,8 @@
 package de.ungerts.quarkus.plugin
 
+import com.google.cloud.tools.jib.api.Containerizer
+import com.google.cloud.tools.jib.api.Jib
+import com.google.cloud.tools.jib.api.TarImage
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.GradleRunner
@@ -25,6 +28,18 @@ class QuarkusJibPluginTest {
         InputStream buildFileContent =
                 getClass().getClassLoader().getResourceAsStream('gradle/configuration/build.gradle')
         Files.copy(buildFileContent, buildFile)
+
+        def scratchImagePath = tempProjectRoot.resolve("build${File.separator}jib-base-cache${File.separator}images${File.separator}scratch!latest")
+        Files.createDirectories(scratchImagePath)
+
+        InputStream scratchConfigContent =
+                getClass().getClassLoader().getResourceAsStream('image/scratch/config.json')
+        Files.copy(scratchConfigContent, scratchImagePath.resolve('config.json'))
+
+        InputStream scratchManifestContent =
+                getClass().getClassLoader().getResourceAsStream('image/scratch/manifest.json')
+        Files.copy(scratchManifestContent, scratchImagePath.resolve('manifest.json'))
+
         def result = GradleRunner.create()
                 .withProjectDir(tempProjectRoot.toFile())
                 .withPluginClasspath()
