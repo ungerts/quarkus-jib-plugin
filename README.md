@@ -60,7 +60,7 @@ On Linux/Mac:
 
 Change directory to ```examples/quarkus-jib```.
 
-Build container image an write the image to a tar file.
+Build container image and write the image to a tar file.
 
 On Windows:
 
@@ -76,7 +76,7 @@ On Linux/Mac:
 
 Tar file should be available at ```build/quarkus-jib.tar```.
 
-Build container image an write the image to local Docker repository.
+Build container image and write the image to local Docker repository.
 
 On Windows:
 
