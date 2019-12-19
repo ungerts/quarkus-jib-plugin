@@ -90,10 +90,16 @@ On Linux/Mac:
 ./gradlew jibDockerBuild
 ```
 
-Image ```quarkus-jib ``` should be installed to local Docker repository. 
+Image ```quarkus-jib``` should be installed to local Docker repository. 
 
 List images (Linux/Mac/Windows):
 
 ```bash
 docker image ls
+```
+
+Run image ```quarkus-jib``` (Linux/Mac/Windows):
+
+```bash
+docker run -ti --rm -p 8080:8080 quarkus-jib
 ```
