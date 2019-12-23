@@ -52,8 +52,8 @@ class JibUtils {
             CredentialRetrieverFactory toCredentialFactory = CredentialRetrieverFactory.forImage(toRef, { event ->
                 println event.getMessage()
             })
-            def fromRetriever = toCredentialFactory.dockerCredentialHelper(quarkusJibExtension.from.credentialHelper)
-            regImageto.addCredentialRetriever(fromRetriever)
+            def toRetriever = toCredentialFactory.dockerCredentialHelper(quarkusJibExtension.to.credentialHelper)
+            regImageto.addCredentialRetriever(toRetriever)
         }
 
         def containerizer = Containerizer.to(regImageto)
