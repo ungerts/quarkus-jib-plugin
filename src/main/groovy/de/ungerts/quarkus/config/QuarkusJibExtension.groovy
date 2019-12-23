@@ -1,8 +1,10 @@
 package de.ungerts.quarkus.config
 
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class QuarkusJibExtension {
@@ -10,25 +12,23 @@ class QuarkusJibExtension {
     private final Property<String> libsDirPath
     private final Property<String> applicationLayersCachePath
     private final Property<String> baseImageLayersCachePath
-    private final Property<String> baseImage
-    private final Property<String> imageName
     private final Property<Integer> exposedPort
     private final Property<Boolean> offlineMode
+    private final FromImage from
+    private final ToImage to
 
     QuarkusJibExtension(Project project) {
         def objectFactory = project.getObjects()
         libsDirPath = objectFactory.property(String.class)
         applicationLayersCachePath = objectFactory.property(String.class)
         baseImageLayersCachePath = objectFactory.property(String.class)
-        baseImage = objectFactory.property(String.class)
-        imageName = objectFactory.property(String.class)
         exposedPort = objectFactory.property(Integer.class)
         offlineMode = objectFactory.property(Boolean.class)
+        from = objectFactory.newInstance(FromImage.class)
+        to = objectFactory.newInstance(ToImage.class)
         libsDirPath.set("${project.buildDir}${File.separator}lib")
         applicationLayersCachePath.set("${project.buildDir}${File.separator}jib-app-cache")
         baseImageLayersCachePath.set("${project.buildDir}${File.separator}jib-base-cache")
-        baseImage.set('gcr.io/distroless/java:11')
-        imageName.set('runner-image')
         exposedPort.set(8080)
         offlineMode.set(false)
 
@@ -52,18 +52,6 @@ class QuarkusJibExtension {
         return baseImageLayersCachePath.get()
     }
 
-    @Input
-    @Optional
-    String getBaseImage() {
-        return baseImage.get()
-    }
-
-    @Input
-    @Optional
-    String getImageName() {
-        return imageName.get()
-    }
-
     void setLibsDirPath(String libsDirPath) {
          this.libsDirPath.set(libsDirPath)
     }
@@ -74,14 +62,6 @@ class QuarkusJibExtension {
 
     void setBaseImageLayersCachePath(String baseImageLayersCachePath) {
         this.baseImageLayersCachePath.set(baseImageLayersCachePath)
-    }
-
-    void setBaseImage(String baseImage) {
-        this.baseImage.set(baseImage)
-    }
-
-    void setImageName(String imageName) {
-        this.imageName.set(imageName)
     }
 
     @Input
@@ -104,5 +84,23 @@ class QuarkusJibExtension {
         this.offlineMode.set(offlineMode)
     }
 
+    void from(Action<? super FromImage> action) {
+        action.execute(from)
+    }
 
+    @Nested
+    @Optional
+    FromImage getFrom() {
+        return from
+    }
+
+    void to(Action<? super ToImage> action) {
+        action.execute(to)
+    }
+
+    @Nested
+    @Optional
+    ToImage getTo() {
+        return to
+    }
 }

@@ -18,7 +18,13 @@ apply plugin: 'io.quarkus'
 apply plugin: 'de.ungerts.quarkus-jib'
 
 quarkusJib {
-    imageName = "${project.name}"
+    offlineMode = false
+    from {
+        baseImage = 'gcr.io/distroless/java:11'
+    }
+    to {
+        imageName = "${project.name}"
+    }
 }
 
 repositories {

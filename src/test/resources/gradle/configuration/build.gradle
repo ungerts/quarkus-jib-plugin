@@ -3,6 +3,11 @@ plugins {
 }
 
 quarkusJib {
-    baseImage = 'scratch'
     offlineMode = true
+    from {
+        baseImage = 'scratch'
+    }
+    to {
+        imageName = 'runner-image'
+    }
 }

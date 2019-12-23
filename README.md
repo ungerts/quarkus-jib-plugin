@@ -20,7 +20,13 @@ buildscript {
 apply plugin: 'de.ungerts.quarkus-jib'
 
 quarkusJib {
-    imageName = "${project.name}"
+    offlineMode = false
+    from {
+        baseImage = 'gcr.io/distroless/java:11'
+    }
+    to {
+        imageName = "${project.name}"
+    }
 }
 ```
 
@@ -31,10 +37,25 @@ Parameter | Default | Description
 `libsDirPath` | `"${project.buildDir}${File.separator}lib"` | 
 `applicationLayersCachePath` | `"${project.buildDir}${File.separator}jib-app-cache"` | 
 `baseImageLayersCachePath` | `"${project.buildDir}${File.separator}jib-base-cache"` | 
-`baseImage` | `'gcr.io/distroless/java:11'` | 
-`imageName` | `'runner-image'` | 
+`from` |  | Closure
+`to` |  | Closure
 `exposedPort` | `8080` | 
 `offlineMode` | `false` | 
+
+To Specification:
+
+Parameter | Default | Description 
+--- | --- | --- 
+`imageName` | `'runner-image'` | 
+`credentialHelper` |  |  
+
+From Specification:
+
+Parameter | Default | Description 
+--- | --- | --- 
+`baseImage` | `'gcr.io/distroless/java:11'` | 
+`credentialHelper` |  | 
+
 
 ## Example
 
