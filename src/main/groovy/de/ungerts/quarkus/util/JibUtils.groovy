@@ -33,7 +33,7 @@ class JibUtils {
     }
 
     static void buildToImageTar(QuarkusJibExtension quarkusJibExtension, Project project) {
-        def tarPath = Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.to.imageName}.tar")
+        def tarPath = Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}")
         def containerizer = Containerizer.to(TarImage
                 .at(tarPath).named(quarkusJibExtension.to.imageName))
                 .addEventHandler(LogEvent.class, { event ->

@@ -14,6 +14,7 @@ class QuarkusJibExtension {
     private final Property<String> baseImageLayersCachePath
     private final Property<Integer> exposedPort
     private final Property<Boolean> offlineMode
+    private final Property<String> tarFileName
     private final FromImage from
     private final ToImage to
 
@@ -24,6 +25,7 @@ class QuarkusJibExtension {
         baseImageLayersCachePath = objectFactory.property(String.class)
         exposedPort = objectFactory.property(Integer.class)
         offlineMode = objectFactory.property(Boolean.class)
+        tarFileName = objectFactory.property(String.class)
         from = objectFactory.newInstance(FromImage.class)
         to = objectFactory.newInstance(ToImage.class)
         libsDirPath.set("${project.buildDir}${File.separator}lib")
@@ -31,6 +33,7 @@ class QuarkusJibExtension {
         baseImageLayersCachePath.set("${project.buildDir}${File.separator}jib-base-cache")
         exposedPort.set(8080)
         offlineMode.set(false)
+        tarFileName.set('runner-image.tar')
 
     }
 
@@ -102,5 +105,15 @@ class QuarkusJibExtension {
     @Optional
     ToImage getTo() {
         return to
+    }
+
+    @Input
+    @Optional
+    String getTarFileName() {
+        return tarFileName.get()
+    }
+
+    void setTarFileName(String tarFileName) {
+        this.tarFileName.set(tarFileName)
     }
 }

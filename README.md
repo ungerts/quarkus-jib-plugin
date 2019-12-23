@@ -41,6 +41,7 @@ Parameter | Default | Description
 `to` |  | Closure
 `exposedPort` | `8080` | 
 `offlineMode` | `false` | 
+`tarFileName` | `'runner-image.tar'` | 
 
 To Specification:
 
