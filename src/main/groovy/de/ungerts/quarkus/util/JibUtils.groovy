@@ -61,6 +61,7 @@ class JibUtils {
                     println event.getMessage()
                 })
                 .setOfflineMode(quarkusJibExtension.offlineMode)
+                .setAllowInsecureRegistries(quarkusJibExtension.allowInsecureRegistries)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         buildImage(project, quarkusJibExtension, containerizer)
