@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'maven'
     id 'java-gradle-plugin'
+    id 'codenarc'
 }
 
 group 'de.ungerts'
