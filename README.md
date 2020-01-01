@@ -4,19 +4,19 @@
 
 ## Configuration
 
-Plugin can be configured in ```build.gradle```.
+Plugin can be configured in ```build.gradle``` and ```settings.gradle```.
+Variable ```quarkusJibPluginVersion``` should be configured in ```build.properties```
+
+```build.gradle```:
 
 ```groovy
-
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath "de.ungerts:quarkus-jib-plugin:1.0-SNAPSHOT"
-    }
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'de.ungerts.quarkus-jib'
 }
 
+apply plugin: 'io.quarkus'
 apply plugin: 'de.ungerts.quarkus-jib'
 
 quarkusJib {
@@ -28,6 +28,30 @@ quarkusJib {
         imageName = "${project.name}"
     }
 }
+```
+
+```settings.gradle```:
+
+```groovy
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == 'de.ungerts' && requested.id.name == 'quarkus-jib') {
+                useModule("de.ungerts:quarkus-jib-plugin:${quarkusJibPluginVersion}")
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'io.quarkus' version "${quarkusPluginVersion}"
+    }
+}
+
+rootProject.name='quarkus-jib-example'
 ```
 
 Parameters:

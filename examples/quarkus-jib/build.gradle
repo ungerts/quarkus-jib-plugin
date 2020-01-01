@@ -4,14 +4,12 @@ buildscript {
     repositories {
         mavenLocal()
     }
-    dependencies {
-        classpath "io.quarkus:quarkus-gradle-plugin:${quarkusPluginVersion}"
-        classpath "de.ungerts:quarkus-jib-plugin:1.0-SNAPSHOT"
-    }
 }
 
 plugins {
     id 'java'
+    id 'io.quarkus'
+    id 'de.ungerts.quarkus-jib'
 }
 
 apply plugin: 'io.quarkus'
