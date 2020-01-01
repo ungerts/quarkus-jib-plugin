@@ -2,14 +2,16 @@ package de.ungerts.quarkus.util
 
 import com.google.cloud.tools.jib.api.AbsoluteUnixPath
 import com.google.cloud.tools.jib.api.Containerizer
-import com.google.cloud.tools.jib.api.CredentialRetriever
 import com.google.cloud.tools.jib.api.DockerDaemonImage
+import com.google.cloud.tools.jib.api.ImageReference
 import com.google.cloud.tools.jib.api.Jib
+import com.google.cloud.tools.jib.api.JibContainerBuilder
 import com.google.cloud.tools.jib.api.LayerConfiguration
 import com.google.cloud.tools.jib.api.LogEvent
 import com.google.cloud.tools.jib.api.Port
 import com.google.cloud.tools.jib.api.RegistryImage
 import com.google.cloud.tools.jib.api.TarImage
+import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory
 import de.ungerts.quarkus.config.QuarkusJibExtension
 import org.gradle.api.Project
 
@@ -20,7 +22,7 @@ class JibUtils {
 
     static void buildToDocker(QuarkusJibExtension quarkusJibExtension, Project project) {
         def containerizer = Containerizer.to(DockerDaemonImage
-                .named(quarkusJibExtension.imageName))
+                .named(quarkusJibExtension.to.imageName))
                 .addEventHandler(LogEvent.class, { event ->
                     println event.getMessage()
                 })
@@ -31,9 +33,9 @@ class JibUtils {
     }
 
     static void buildToImageTar(QuarkusJibExtension quarkusJibExtension, Project project) {
-        def tarPath = Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.imageName}.tar")
+        def tarPath = Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}")
         def containerizer = Containerizer.to(TarImage
-                .at(tarPath).named(quarkusJibExtension.imageName))
+                .at(tarPath).named(quarkusJibExtension.to.imageName))
                 .addEventHandler(LogEvent.class, { event ->
                     println event.getMessage()
                 })
@@ -44,13 +46,22 @@ class JibUtils {
     }
 
     static void buildToRegistry(QuarkusJibExtension quarkusJibExtension, Project project) {
-        def tarPath = Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.imageName}.tar")
-        def containerizer = Containerizer.to(RegistryImage
-                .named(quarkusJibExtension.imageName))
+        def toRef = ImageReference.parse(quarkusJibExtension.to.imageName)
+        def regImageto = RegistryImage.named(toRef)
+        if (quarkusJibExtension.to.credentialHelper) {
+            CredentialRetrieverFactory toCredentialFactory = CredentialRetrieverFactory.forImage(toRef, { event ->
+                println event.getMessage()
+            })
+            def toRetriever = toCredentialFactory.dockerCredentialHelper(quarkusJibExtension.to.credentialHelper)
+            regImageto.addCredentialRetriever(toRetriever)
+        }
+
+        def containerizer = Containerizer.to(regImageto)
                 .addEventHandler(LogEvent.class, { event ->
                     println event.getMessage()
                 })
                 .setOfflineMode(quarkusJibExtension.offlineMode)
+                .setAllowInsecureRegistries(quarkusJibExtension.allowInsecureRegistries)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         buildImage(project, quarkusJibExtension, containerizer)
@@ -62,7 +73,7 @@ class JibUtils {
                 .addEntry(runnerFilePath, AbsoluteUnixPath.get('/app/app.jar'))
                 .build()
         def port = Port.tcp(quarkusJibExtension.exposedPort)
-        Jib.from(quarkusJibExtension.baseImage)
+        createContainerBuilder(quarkusJibExtension)
                 .setWorkingDirectory(AbsoluteUnixPath.get('/app'))
                 .addLayer([Paths.get(quarkusJibExtension.libsDirPath)], '/app')
                 .addLayer(runnerLayer)
@@ -70,6 +81,26 @@ class JibUtils {
                 .setEntrypoint(['java', '-jar', 'app.jar'])
                 .setCreationTime(Instant.now())
                 .containerize(containerizer)
+    }
+
+    private static JibContainerBuilder createContainerBuilder(QuarkusJibExtension quarkusJibExtension) {
+        JibContainerBuilder builder
+        def fromRef = ImageReference.parse(quarkusJibExtension.from.baseImage)
+        if (fromRef.registry) {
+            def regImageFrom = RegistryImage.named(fromRef)
+            if (quarkusJibExtension.from.credentialHelper) {
+                CredentialRetrieverFactory fromCredentialFactory = CredentialRetrieverFactory
+                        .forImage(fromRef, { event ->
+                            println event.getMessage()
+                        })
+                def fromRetiever = fromCredentialFactory.dockerCredentialHelper(quarkusJibExtension.from.credentialHelper)
+                regImageFrom.addCredentialRetriever(fromRetiever)
+            }
+            builder = Jib.from(regImageFrom)
+        } else {
+            builder = Jib.from(fromRef)
+        }
+        builder
     }
 
 

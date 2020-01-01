@@ -1,16 +1,19 @@
 pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == 'de.ungerts' && requested.id.name == 'quarkus-jib') {
+                useModule("de.ungerts:quarkus-jib-plugin:${quarkusJibPluginVersion}")
+            }
+        }
+    }
     repositories {
         mavenLocal()
         mavenCentral()
         gradlePluginPortal()
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'io.quarkus') {
-                useModule("io.quarkus:quarkus-gradle-plugin:1.0.1.Final")
-            }
-        }
+    plugins {
+        id 'io.quarkus' version "${quarkusPluginVersion}"
     }
 }
 
-rootProject.name='quarkus-jib'
+rootProject.name='quarkus-jib-example'

@@ -4,24 +4,54 @@
 
 ## Configuration
 
-Plugin can be configured in ```build.gradle```.
+Plugin can be configured in ```build.gradle``` and ```settings.gradle```.
+Variable ```quarkusJibPluginVersion``` should be configured in ```build.properties```.
+
+```build.gradle```:
 
 ```groovy
-
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath "de.ungerts:quarkus-jib-plugin:1.0-SNAPSHOT"
-    }
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'de.ungerts.quarkus-jib'
 }
 
+apply plugin: 'io.quarkus'
 apply plugin: 'de.ungerts.quarkus-jib'
 
 quarkusJib {
-    imageName = "${project.name}"
+    offlineMode = false
+    from {
+        baseImage = 'gcr.io/distroless/java:11'
+    }
+    to {
+        imageName = "${project.name}"
+    }
 }
+```
+
+```settings.gradle```:
+
+```groovy
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == 'de.ungerts' && requested.id.name == 'quarkus-jib') {
+                useModule("de.ungerts:quarkus-jib-plugin:${quarkusJibPluginVersion}")
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'io.quarkus' version "${quarkusPluginVersion}"
+    }
+}
+
+rootProject.name='quarkus-jib-example'
 ```
 
 Parameters:
@@ -31,10 +61,27 @@ Parameter | Default | Description
 `libsDirPath` | `"${project.buildDir}${File.separator}lib"` | 
 `applicationLayersCachePath` | `"${project.buildDir}${File.separator}jib-app-cache"` | 
 `baseImageLayersCachePath` | `"${project.buildDir}${File.separator}jib-base-cache"` | 
-`baseImage` | `'gcr.io/distroless/java:11'` | 
-`imageName` | `'runner-image'` | 
+`from` |  | Closure
+`to` |  | Closure
 `exposedPort` | `8080` | 
 `offlineMode` | `false` | 
+`tarFileName` | `'runner-image.tar'` | 
+`allowInsecureRegistries` | `false` | 
+
+To Specification:
+
+Parameter | Default | Description 
+--- | --- | --- 
+`imageName` | `'runner-image'` | 
+`credentialHelper` |  |  
+
+From Specification:
+
+Parameter | Default | Description 
+--- | --- | --- 
+`baseImage` | `'gcr.io/distroless/java:11'` | 
+`credentialHelper` |  | 
+
 
 ## Example
 
