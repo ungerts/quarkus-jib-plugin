@@ -5,7 +5,7 @@
 ## Configuration
 
 Plugin can be configured in ```build.gradle``` and ```settings.gradle```.
-Variable ```quarkusJibPluginVersion``` should be configured in ```build.properties```
+Variable ```quarkusJibPluginVersion``` should be configured in ```build.properties```.
 
 ```build.gradle```:
 
@@ -66,6 +66,7 @@ Parameter | Default | Description
 `exposedPort` | `8080` | 
 `offlineMode` | `false` | 
 `tarFileName` | `'runner-image.tar'` | 
+`allowInsecureRegistries` | `false` | 
 
 To Specification:
 
