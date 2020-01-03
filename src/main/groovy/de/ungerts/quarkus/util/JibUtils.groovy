@@ -2,6 +2,7 @@ package de.ungerts.quarkus.util
 
 import com.google.cloud.tools.jib.api.AbsoluteUnixPath
 import com.google.cloud.tools.jib.api.Containerizer
+import com.google.cloud.tools.jib.api.Credential
 import com.google.cloud.tools.jib.api.DockerDaemonImage
 import com.google.cloud.tools.jib.api.ImageReference
 import com.google.cloud.tools.jib.api.Jib
@@ -12,7 +13,10 @@ import com.google.cloud.tools.jib.api.Port
 import com.google.cloud.tools.jib.api.RegistryImage
 import com.google.cloud.tools.jib.api.TarImage
 import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory
+import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException
 import de.ungerts.quarkus.config.QuarkusJibExtension
+import io.fabric8.openshift.client.DefaultOpenShiftClient
+import io.fabric8.openshift.client.OpenShiftClient
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -47,14 +51,7 @@ class JibUtils {
 
     static void buildToRegistry(QuarkusJibExtension quarkusJibExtension, Project project) {
         def toRef = ImageReference.parse(quarkusJibExtension.to.imageName)
-        def regImageto = RegistryImage.named(toRef)
-        if (quarkusJibExtension.to.credentialHelper) {
-            CredentialRetrieverFactory toCredentialFactory = CredentialRetrieverFactory.forImage(toRef, { event ->
-                println event.getMessage()
-            })
-            def toRetriever = toCredentialFactory.dockerCredentialHelper(quarkusJibExtension.to.credentialHelper)
-            regImageto.addCredentialRetriever(toRetriever)
-        }
+        RegistryImage regImageto = createRegistryImage(toRef, quarkusJibExtension.to.credentialHelper)
 
         def containerizer = Containerizer.to(regImageto)
                 .addEventHandler(LogEvent.class, { event ->
@@ -65,6 +62,35 @@ class JibUtils {
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         buildImage(project, quarkusJibExtension, containerizer)
+    }
+
+    private static RegistryImage createRegistryImage(ImageReference imageRef, String credentialHelper) {
+        def regImage = RegistryImage.named(imageRef)
+        if (credentialHelper) {
+            CredentialRetrieverFactory toCredentialFactory = CredentialRetrieverFactory.forImage(imageRef, { event ->
+                println event.getMessage()
+            })
+            if (credentialHelper == 'openshift') {
+                regImage.addCredentialRetriever({
+                    try {
+                        createOpenshiftCredential()
+                    } catch (RuntimeException e) {
+                        throw new CredentialRetrievalException(e)
+                    }
+                })
+            } else {
+                def retriever = toCredentialFactory.dockerCredentialHelper(credentialHelper)
+                regImage.addCredentialRetriever(retriever)
+            }
+        }
+        regImage
+    }
+
+    private static Optional<Credential> createOpenshiftCredential() {
+        OpenShiftClient osClient = new DefaultOpenShiftClient()
+        def oauthToken = osClient.configuration.oauthToken
+        def username = osClient.configuration.username
+        Optional.of(Credential.from(username, oauthToken))
     }
 
     private static void buildImage(Project project, QuarkusJibExtension quarkusJibExtension, Containerizer containerizer) {
@@ -87,15 +113,7 @@ class JibUtils {
         JibContainerBuilder builder
         def fromRef = ImageReference.parse(quarkusJibExtension.from.baseImage)
         if (fromRef.registry) {
-            def regImageFrom = RegistryImage.named(fromRef)
-            if (quarkusJibExtension.from.credentialHelper) {
-                CredentialRetrieverFactory fromCredentialFactory = CredentialRetrieverFactory
-                        .forImage(fromRef, { event ->
-                            println event.getMessage()
-                        })
-                def fromRetiever = fromCredentialFactory.dockerCredentialHelper(quarkusJibExtension.from.credentialHelper)
-                regImageFrom.addCredentialRetriever(fromRetiever)
-            }
+            def regImageFrom = createRegistryImage(fromRef, quarkusJibExtension.from.credentialHelper)
             builder = Jib.from(regImageFrom)
         } else {
             builder = Jib.from(fromRef)
