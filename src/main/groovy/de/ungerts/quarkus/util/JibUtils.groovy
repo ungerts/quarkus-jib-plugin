@@ -6,7 +6,9 @@ import com.google.cloud.tools.jib.api.Credential
 import com.google.cloud.tools.jib.api.DockerDaemonImage
 import com.google.cloud.tools.jib.api.ImageReference
 import com.google.cloud.tools.jib.api.Jib
+import com.google.cloud.tools.jib.api.JibContainer
 import com.google.cloud.tools.jib.api.JibContainerBuilder
+import com.google.cloud.tools.jib.api.JibContainer
 import com.google.cloud.tools.jib.api.LayerConfiguration
 import com.google.cloud.tools.jib.api.LogEvent
 import com.google.cloud.tools.jib.api.Port
@@ -46,7 +48,15 @@ class JibUtils {
                 .setOfflineMode(quarkusJibExtension.offlineMode)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
-        buildImage(project, quarkusJibExtension, containerizer)
+        def container = buildImage(project, quarkusJibExtension, containerizer)
+        writeImageDigest(container, "${project.buildDir}${File.separator}")
+    }
+
+    static void writeImageDigest(JibContainer container, String fileNameBase) {
+        def digestFile = new File("${fileNameBase}digest.txt")
+        digestFile.text = container.digest.toString()
+        def imageIdFile = new File("${fileNameBase}image-id.txt")
+        imageIdFile.text = container.imageId.toString()
     }
 
     static void buildToRegistry(QuarkusJibExtension quarkusJibExtension, Project project) {
@@ -93,13 +103,13 @@ class JibUtils {
         Optional.of(Credential.from(username, oauthToken))
     }
 
-    private static void buildImage(Project project, QuarkusJibExtension quarkusJibExtension, Containerizer containerizer) {
+    private static JibContainer buildImage(Project project, QuarkusJibExtension quarkusJibExtension, Containerizer containerizer) {
         def runnerFilePath = project.fileTree(dir: "${project.buildDir}", include: '*-runner.jar').getFiles()[0].toPath()
         def runnerLayer = LayerConfiguration.builder()
                 .addEntry(runnerFilePath, AbsoluteUnixPath.get('/app/app.jar'))
                 .build()
         def port = Port.tcp(quarkusJibExtension.exposedPort)
-        createContainerBuilder(quarkusJibExtension)
+        return createContainerBuilder(quarkusJibExtension)
                 .setWorkingDirectory(AbsoluteUnixPath.get('/app'))
                 .addLayer([Paths.get(quarkusJibExtension.libsDirPath)], '/app')
                 .addLayer(runnerLayer)
