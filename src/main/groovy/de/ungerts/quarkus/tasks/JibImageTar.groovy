@@ -4,6 +4,7 @@ import de.ungerts.quarkus.config.QuarkusJibExtension
 import de.ungerts.quarkus.util.JibUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFiles
@@ -43,14 +44,18 @@ class JibImageTar extends DefaultTask {
          Paths.get("${fileNameBase}image-id.txt").toFile()]
                 .findAll { it.exists() }
                 .each { inputCollection.add(project.files(it)) }
-        project.files(inputCollection).each {file -> logger.error("Input file found: ${file.toString()}")}
+        if (logger.isEnabled(LogLevel.DEBUG)) {
+            project.files(inputCollection).each { file -> logger.debug("Input file found: ${file.toString()}") }
+        }
         project.files(inputCollection)
     }
 
     @OutputFiles
     FileCollection getOutputFiles() {
-        project.files(Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}").toFile())
-                .each {file -> logger.error("Output file found: ${file.toString()}")}
+        if (logger.isEnabled(LogLevel.DEBUG)) {
+            project.files(Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}").toFile())
+                    .each { file -> logger.debug("Output file found: ${file.toString()}") }
+        }
         project.files(Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}").toFile())
     }
 
