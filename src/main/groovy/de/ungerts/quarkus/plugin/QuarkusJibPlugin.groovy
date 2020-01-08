@@ -17,8 +17,10 @@ class QuarkusJibPlugin implements Plugin<Project> {
             task.setDescription("Builds a container image to a tarball.")
             task.setQuarkusJibExtension(extension)
             def quarkusBuild = project.getTasksByName('quarkusBuild', true)
+            quarkusBuild.each {task1 -> task1.logger.info "Task name: ${task1.name}"
+            }
             if (quarkusBuild) {
-                task.dependsOn(quarkusBuild)
+               task.dependsOn(quarkusBuild)
             }
         })
         project.getTasks().create('jibDockerBuild', JibDockerBuild.class, { task ->
