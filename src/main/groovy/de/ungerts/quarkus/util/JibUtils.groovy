@@ -6,7 +6,6 @@ import com.google.cloud.tools.jib.api.Credential
 import com.google.cloud.tools.jib.api.DockerDaemonImage
 import com.google.cloud.tools.jib.api.ImageReference
 import com.google.cloud.tools.jib.api.Jib
-import com.google.cloud.tools.jib.api.JibContainer
 import com.google.cloud.tools.jib.api.JibContainerBuilder
 import com.google.cloud.tools.jib.api.JibContainer
 import com.google.cloud.tools.jib.api.LayerConfiguration
