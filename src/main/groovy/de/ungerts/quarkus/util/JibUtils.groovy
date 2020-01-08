@@ -51,7 +51,7 @@ class JibUtils {
         def digestFile = new File("${fileNameBase}digest.txt")
         digestFile.text = container.digest.toString()
         def imageIdFile = new File("${fileNameBase}image-id.txt")
-        imageIdFile.text = container.digest.toString()
+        imageIdFile.text = container.imageId.toString()
     }
 
     static void buildToRegistry(QuarkusJibExtension quarkusJibExtension, Project project) {

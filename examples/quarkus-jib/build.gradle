@@ -23,6 +23,7 @@ quarkusJib {
     }
     to {
         imageName = "${project.name}"
+        tarFileName = "${project.name}.tar"
     }
 }
 
