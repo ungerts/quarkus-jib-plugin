@@ -17,9 +17,6 @@ class JibImageTar extends DefaultTask {
     @Nullable
     private QuarkusJibExtension quarkusJibExtension
 
-//    @Input
-//    QuarkusJibExtension quarkusJibExtension
-
     @TaskAction
     void buildImage() {
         JibUtils.buildToImageTar(quarkusJibExtension, project)
