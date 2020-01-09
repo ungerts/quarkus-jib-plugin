@@ -34,7 +34,8 @@ class JibUtils {
                 .setOfflineMode(quarkusJibExtension.offlineMode)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
-        buildImage(project, quarkusJibExtension, containerizer)
+        def container = buildImage(project, quarkusJibExtension, containerizer)
+        writeImageDigest(container, "${project.buildDir}", 'docker')
     }
 
     static void buildToImageTar(QuarkusJibExtension quarkusJibExtension, Project project) {
@@ -48,13 +49,13 @@ class JibUtils {
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
         def container = buildImage(project, quarkusJibExtension, containerizer)
-        writeImageDigest(container, "${project.buildDir}${File.separator}")
+        writeImageDigest(container, "${project.buildDir}", 'tar')
     }
 
-    static void writeImageDigest(JibContainer container, String fileNameBase) {
-        def digestFile = new File("${fileNameBase}digest.txt")
+    static void writeImageDigest(JibContainer container, String baseDir, String prefix) {
+        def digestFile = new File("${baseDir}${File.separator}${prefix}-digest.txt")
         digestFile.text = container.digest.toString()
-        def imageIdFile = new File("${fileNameBase}image-id.txt")
+        def imageIdFile = new File("${baseDir}${File.separator}${prefix}-image-id.txt")
         imageIdFile.text = container.imageId.toString()
     }
 
@@ -70,7 +71,8 @@ class JibUtils {
                 .setAllowInsecureRegistries(quarkusJibExtension.allowInsecureRegistries)
                 .setBaseImageLayersCache(Paths.get(quarkusJibExtension.baseImageLayersCachePath))
                 .setApplicationLayersCache(Paths.get(quarkusJibExtension.applicationLayersCachePath))
-        buildImage(project, quarkusJibExtension, containerizer)
+        def container = buildImage(project, quarkusJibExtension, containerizer)
+        writeImageDigest(container, "${project.buildDir}", 'registry')
     }
 
     private static RegistryImage createRegistryImage(ImageReference imageRef, String credentialHelper) {
@@ -103,7 +105,7 @@ class JibUtils {
     }
 
     private static JibContainer buildImage(Project project, QuarkusJibExtension quarkusJibExtension, Containerizer containerizer) {
-        def runnerFilePath = project.fileTree(dir: "${project.buildDir}", include: '*-runner.jar').getFiles()[0].toPath()
+        def runnerFilePath = project.fileTree(dir: "${project.buildDir}", include: '*-runner.jar').getSingleFile().toPath()
         def runnerLayer = LayerConfiguration.builder()
                 .addEntry(runnerFilePath, AbsoluteUnixPath.get('/app/app.jar'))
                 .build()
