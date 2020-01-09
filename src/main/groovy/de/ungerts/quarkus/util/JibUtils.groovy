@@ -16,8 +16,6 @@ import com.google.cloud.tools.jib.api.TarImage
 import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory
 import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException
 import de.ungerts.quarkus.config.QuarkusJibExtension
-import io.fabric8.openshift.client.DefaultOpenShiftClient
-import io.fabric8.openshift.client.OpenShiftClient
 import org.gradle.api.Project
 
 import java.nio.file.Paths
@@ -61,7 +59,7 @@ class JibUtils {
 
     static void buildToRegistry(QuarkusJibExtension quarkusJibExtension, Project project) {
         def toRef = ImageReference.parse(quarkusJibExtension.to.imageName)
-        RegistryImage regImageto = createRegistryImage(toRef, quarkusJibExtension.to.credentialHelper)
+        RegistryImage regImageto = createRegistryImage(toRef, quarkusJibExtension.to.credentialHelper, quarkusJibExtension.to.username, quarkusJibExtension.to.password)
 
         def containerizer = Containerizer.to(regImageto)
                 .addEventHandler(LogEvent.class, { event ->
@@ -75,33 +73,33 @@ class JibUtils {
         writeImageDigest(container, "${project.buildDir}", 'registry')
     }
 
-    private static RegistryImage createRegistryImage(ImageReference imageRef, String credentialHelper) {
+    private static RegistryImage createRegistryImage(ImageReference imageRef, String credentialHelper, String username, String password) {
         def regImage = RegistryImage.named(imageRef)
         if (credentialHelper) {
-            CredentialRetrieverFactory toCredentialFactory = CredentialRetrieverFactory.forImage(imageRef, { event ->
-                println event.getMessage()
-            })
             if (credentialHelper == 'openshift') {
                 regImage.addCredentialRetriever({
                     try {
-                        createOpenshiftCredential()
+                        return createOpenshiftCredential()
                     } catch (RuntimeException e) {
                         throw new CredentialRetrievalException(e)
                     }
                 })
             } else {
-                def retriever = toCredentialFactory.dockerCredentialHelper(credentialHelper)
+                CredentialRetrieverFactory retrieverFactory = CredentialRetrieverFactory.forImage(imageRef, { event ->
+                    println event.getMessage()
+                })
+                def retriever = retrieverFactory.dockerCredentialHelper(credentialHelper)
                 regImage.addCredentialRetriever(retriever)
             }
+        } else {
+            regImage.addCredential(username, password)
         }
         regImage
     }
 
     private static Optional<Credential> createOpenshiftCredential() {
-        OpenShiftClient osClient = new DefaultOpenShiftClient()
-        def oauthToken = osClient.configuration.oauthToken
-        def username = osClient.configuration.username
-        Optional.of(Credential.from(username, oauthToken))
+        def  token = new File('/var/run/secrets/kubernetes.io/serviceaccount/token').text
+        Optional.of(Credential.from('openshift', token))
     }
 
     private static JibContainer buildImage(Project project, QuarkusJibExtension quarkusJibExtension, Containerizer containerizer) {
@@ -124,7 +122,7 @@ class JibUtils {
         JibContainerBuilder builder
         def fromRef = ImageReference.parse(quarkusJibExtension.from.baseImage)
         if (fromRef.registry) {
-            def regImageFrom = createRegistryImage(fromRef, quarkusJibExtension.from.credentialHelper)
+            def regImageFrom = createRegistryImage(fromRef, quarkusJibExtension.from.credentialHelper, quarkusJibExtension.from.username, quarkusJibExtension.from.password)
             builder = Jib.from(regImageFrom)
         } else {
             builder = Jib.from(fromRef)
