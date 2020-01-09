@@ -14,6 +14,12 @@ class FromImage {
     @Nullable
     private String credentialHelper
 
+    @Nullable
+    private String username
+
+    @Nullable
+    private String password
+
     @Inject
     FromImage(ObjectFactory objectFactory) {
         baseImage = 'gcr.io/distroless/java:11'
@@ -38,5 +44,27 @@ class FromImage {
 
     void setCredentialHelper(@Nullable String credentialHelper) {
         this.credentialHelper = credentialHelper
+    }
+
+    @Input
+    @Optional
+    @Nullable
+    String getUsername() {
+        return username
+    }
+
+    void setUsername(@Nullable String username) {
+        this.username = username
+    }
+
+    @Input
+    @Optional
+    @Nullable
+    String getPassword() {
+        return password
+    }
+
+    void setPassword(@Nullable String password) {
+        this.password = password
     }
 }

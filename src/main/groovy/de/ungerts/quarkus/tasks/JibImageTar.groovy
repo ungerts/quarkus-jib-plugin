@@ -38,10 +38,10 @@ class JibImageTar extends DefaultTask {
         FileCollection runnerCollection = project.fileTree(dir: "${project.buildDir}", include: '*-runner.jar')
         FileCollection libCollection = project.fileTree(dir: "${project.buildDir}${File.separator}lib", include: '*')
         List<FileCollection> inputCollection = [runnerCollection, libCollection]
-        def fileNameBase = "${project.buildDir}${File.separator}"
+        String baseDir = "${project.buildDir}${File.separator}"
         [Paths.get("${project.buildDir}${File.separator}${quarkusJibExtension.tarFileName}").toFile(),
-         Paths.get("${fileNameBase}digest.txt").toFile(),
-         Paths.get("${fileNameBase}image-id.txt").toFile()]
+         Paths.get("${baseDir}tar-digest.txt").toFile(),
+         Paths.get("${baseDir}tar-image-id.txt").toFile()]
                 .findAll { it.exists() }
                 .each { inputCollection.add(project.files(it)) }
         if (logger.isEnabled(LogLevel.DEBUG)) {
