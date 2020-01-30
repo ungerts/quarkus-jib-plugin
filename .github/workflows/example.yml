@@ -1,0 +1,23 @@
+name: example
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11.0.3
+      - name: Grant execute permission for gradlew of plugin
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew install
+      - name: Grant execute permission for gradlew of plugin
+        run: chmod +x examples/quarkus-jib/gradlew
+      - name: Build with Gradle
+        run: ./examples/quarkus-jib/gradlew quarkusBuild buildNative -Dquarkus.native.container-runtime=docker -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:19.3.1-java11
