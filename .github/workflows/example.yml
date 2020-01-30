@@ -20,9 +20,9 @@ jobs:
       - name: Grant execute permission for gradlew of example
         run: chmod +x gradlew
         working-directory: ./examples/quarkus-jib
-      - name: Build container
+      - name: Build example container with Gradle
         run: ./gradlew jibImageTar jibDockerBuild
         working-directory: ./examples/quarkus-jib
-      - name: Build example with Gradle
+      - name: Build example native image with Gradle
         run: ./gradlew clean buildNative -Dquarkus.native.container-runtime=docker -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:19.3.1-java11
         working-directory: ./examples/quarkus-jib
