@@ -17,9 +17,12 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew install
-      - name: Grant execute permission for gradlew of plugin
+      - name: Grant execute permission for gradlew of example
         run: chmod +x gradlew
         working-directory: ./examples/quarkus-jib
-      - name: Build with Gradle
-        run: ./gradlew quarkusBuild buildNative -Dquarkus.native.container-runtime=docker -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:19.3.1-java11
+      - name: Build container
+        run: ./gradlew jibImageTar jibDockerBuild
+        working-directory: ./examples/quarkus-jib
+      - name: Build example with Gradle
+        run: ./gradlew clean buildNative -Dquarkus.native.container-runtime=docker -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:19.3.1-java11
         working-directory: ./examples/quarkus-jib
